@@ -1,0 +1,10 @@
+name = "tartarous-visitor-analytics"
+main = "worker.js"
+compatibility_date = "2026-07-26"
+
+[[kv_namespaces]]
+binding = "VISITS"
+id = "ab9ff059cc484eae8aab5c60e664e020"
+
+[vars]
+ALLOWED_ORIGIN = "https://tartar0us.github.io"

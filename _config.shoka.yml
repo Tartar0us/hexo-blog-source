@@ -1,0 +1,219 @@
+﻿alternate: Tartar0us
+
+# Assets
+statics: / #//cdn.jsdelivr.net/gh/amehime/shoka@latest/
+
+# 自定义 CSS 和 JS
+css: css
+js: js
+images: images
+
+# 自定义样式和脚本文件（将在页面中自动加载）
+inject:
+  head:
+    - <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    - <link rel="stylesheet" href="/css/custom.css">
+    - <meta name="visitor-analytics-endpoint" content="https://tartarous-visitor-analytics.tartarous-blog-3010383177.workers.dev">
+  bottom:
+    - |
+      <script>
+      window.VISITOR_ANALYTICS_ENDPOINT = "https://tartarous-visitor-analytics.tartarous-blog-3010383177.workers.dev";
+      </script>
+    - <script defer src="/js/visitor-analytics.js"></script>
+    - |
+      <script>
+      // 确保不蒜子统计正常工作
+      document.addEventListener('DOMContentLoaded', function() {
+        // 等待不蒜子脚本加载
+        var checkBusuanzi = setInterval(function() {
+          if (typeof window.busuanzi !== 'undefined') {
+            clearInterval(checkBusuanzi);
+            console.log('不蒜子统计已加载');
+          }
+        }, 100);
+        
+        // 5秒后如果还没加载成功，显示提示
+        setTimeout(function() {
+          var elements = ['busuanzi_value_site_pv', 'busuanzi_value_site_uv', 'busuanzi_value_page_pv'];
+          elements.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && (el.textContent === '' || el.textContent === '0')) {
+              el.textContent = '统计中...';
+              el.style.color = '#999';
+            }
+          });
+        }, 5000);
+      });
+      </script>
+
+open_graph:
+  #twitter_id:
+  #google_plus:
+  #fb_admins:
+  #fb_app_id:
+
+menu:
+  home: / || home
+  posts:
+    default: / || feather
+    archives: /archives/ || list-alt
+    categories: /categories/ || th
+    tags: /tags/ || tags
+  stats: /stats/ || bar-chart
+  friends: /friends/ || heart
+
+# Social Links
+# Usage: `Key: permalink || icon || color`
+social:
+  github: https://github.com/Tartar0us || github || "#191717"
+  bilibili: https://space.bilibili.com/474105633 || play-circle || "#00A1D6"
+  #google: https://plus.google.com/yourname || google
+  #twitter: https://twitter.com/yourname || twitter || "#00aff0"
+  #zhihu: https://www.zhihu.com/people/yourname || zhihu || "#1e88e5"
+  #music: https://music.163.com/#/user/home?id=12886823 || cloud-music || "#e60026"
+  #weibo: https://weibo.com/yourname || weibo || "#ea716e"
+  #about: https://about.me/yourname || address-card || "#3b5998"
+  #email: mailto:yourname@mail.com || envelope || "#55acd5"
+
+# 侧边栏设置
+sidebar:
+  # 头像设置 - 你可以把头像图片放到 source/images/ 文件夹下，然后修改这里的路径
+  avatar: "avaaa.jpg"  # 用引号包围文件名，处理空格问题
+  position: left  # 侧边栏位置：left 或 right
+
+# 网站图标设置
+favicon:
+  apple_touch_icon: /apple-touch-icon.png  # iOS 设备图标
+  #safari_pinned_tab: /logo.svg            # Safari 固定标签图标
+  # 主网站图标在 themes/shoka/source/images/favicon.ico
+
+# 深色模式设置
+darkmode: false  # 设为 true 则默认开启深色模式
+
+# 自动滚动到上次浏览位置
+auto_scroll: true
+
+# 加载动画
+loader:
+  start: true    # 进入页面时显示加载猫咪
+  switch: true   # 切换页面时显示加载动画
+
+# 点击烟花效果
+fireworks:
+  enable: true   # 开启点击烟花效果
+  color:      # 自定义烟花颜色（可选）
+    - "rgba(255,182,185,.9)"
+    - "rgba(250,227,217,.9)"
+    - "rgba(187,222,214,.9)"
+    - "rgba(138,198,230,.9)"
+
+# 随机图片API（用于文章封面等）
+# image_server: "https://acg.xydwz.cn/api/api.php"  # 原API已失效
+# image_server: "https://picsum.photos/800/600"  # Lorem Picsum 随机图片
+# image_server: "https://source.unsplash.com/800x600"  # Unsplash 随机图片
+image_server: ""  # 暂时禁用随机图片，使用手动设置的封面
+
+# 字体设置
+font:
+  enable: true
+  # 全局字体
+  global:
+    external: true
+    family: Mulish
+    size:
+  # 网站标题字体
+  title:
+    external: true
+    family: Noto Serif JP
+    size: 2.5
+  # 文章标题字体
+  headings:
+    external: true
+    family: Noto Serif SC
+    size:
+  # 代码字体
+  codes:
+    external: true
+    family: Inconsolata
+
+# 标签云设置
+tagcloud:
+  min: 16                # 最小字体大小
+  max: 22                # 最大字体大小
+  start: "#72cecf"       # 起始颜色
+  end: "#ffbac3"         # 结束颜色
+  amount: 200            # 标签数量
+
+footer:
+  # Specify the date when the site was setup. If not defined, current year will be used.
+  since: 2023
+  count: true
+  # 网站统计信息
+  busuanzi: true
+
+post:
+  count: true
+
+# ---------------------------------------------------------------
+# Third Party Plugins & Services Settings
+# ---------------------------------------------------------------
+
+# Comments & Analytics
+# Valine - 同时提供评论和访问量统计功能
+# 需要在 LeanCloud 注册账号获取 appId 和 appKey
+# 注册地址: https://console.leancloud.app/
+valine:
+  appId: # 请在 LeanCloud 获取你的 appId
+  appKey: # 请在 LeanCloud 获取你的 appKey
+  placeholder: ヾ(≧∇≦*)ゝ 说点什么吧~ # Comment box placeholder
+  pageSize: 10 # Pagination size
+  lang: zh-CN
+  visitor: true # 开启访问量统计
+  tagMember:
+    master:
+      # - deea5a8d259d17182a53be1772e4c182
+    friend:
+      # - deea5a8d259d17182a53be1772e4c182
+
+# 不蒜子统计 - 轻量级访问量统计
+busuanzi:
+  enable: true
+  site_uv: true    # 站点总访客数
+  site_pv: true    # 站点总访问量
+  page_pv: true    # 页面访问量
+  # 自定义文本
+  site_uv_header: '<i class="fa fa-user"></i> 总访客数'
+  site_uv_footer: '人'
+  site_pv_header: '<i class="fa fa-eye"></i> 总访问量'
+  site_pv_footer: '次'
+  page_pv_header: '<i class="fa fa-file-o"></i> 本页阅读量'
+  page_pv_footer: '次'
+
+# 自建访客统计
+# 先部署 blog/analytics-worker，再把 endpoint 替换成你的 Worker 地址。
+visitor_analytics:
+  enable: true
+  endpoint: https://tartarous-visitor-analytics.tartarous-blog-3010383177.workers.dev
+
+# bgm
+audio:
+   - title: 列表1
+     list:
+       - https://music.163.com/#/song?id=564000295
+       - https://music.163.com/#/playlist?id=2297706586
+   - title: 列表2
+     list:
+       - https://music.163.com/#/playlist?id=2031842656
+
+# Dependencies: https://github.com/amehime/hexo-renderer-multi-markdown-it
+pangu: true
+
+# ---------------------------------------------------------------
+# analytics & SEO Settings
+# ---------------------------------------------------------------
+
+# Disable Baidu transformation on mobile devices.
+disable_baidu_transformation: true
+
+# Automatically add external URL with Base64 encrypt & decrypt.
+exturl: true

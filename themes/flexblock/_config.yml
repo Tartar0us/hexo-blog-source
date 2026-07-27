@@ -1,0 +1,100 @@
+﻿# Header
+menu:
+  棣栭〉: /
+  褰掓。: /archives
+  鍙嬮摼: /links
+  鍏充簬: /about
+
+# 涓婚〉banner鍥?banner: https://qiniu.sukoshi.xyz/src/images/68686407_p0.jpg
+
+# 绔欑偣閫氱煡淇℃伅
+notice: flex-block涓婚閮ㄥ垎閲嶆瀯锛岃鎯呮煡鐪媓ttps://github.com/miiiku/flex-block
+
+# 浣滆€呬俊鎭?author:
+  name: Sukoshi
+  avatar: https://s.gravatar.com/avatar/2d6b803eea37de0257620d5fabee7e64?s=200&r=g&d=retro
+  description: 璐靛湪鍧氭寔
+
+toc:
+  max_depth: 3 # 鐢熸垚 TOC 鐨勬渶澶ф繁搴?  min_depth: 2 # 鐢熸垚 TOC 鐨勬渶灏忔繁搴?
+comments:
+  enable: false
+  use: 'valine' # valine || disqus
+  # valine 璇勮
+  # docs: https://valine.js.org
+  # You can get your appid and appkey from https://leancloud.cn
+  # 杩欓噷appId鍜宎ppKey涓€瀹氫竴瀹氳鏀规垚鑷繁鐨勶紝娌℃湁鐨勮瘽鍘?https://leancloud.cn 杩欎釜缃戠珯娉ㄥ唽鍒涘缓涓€涓?  valine:
+    appId: 
+    appKey: 
+    placeholder: 闅忎究璇寸偣浠€涔堝彮锝?# 璇勮妗嗗崰浣嶆彁绀虹
+    avatar: mp # Gravatar 澶村儚灞曠ず鏂瑰紡
+    pageSize: 10 # 璇勮鍒楄〃鍒嗛〉锛屾瘡椤垫潯鏁?    lang: zh-cn # 澶氳瑷€鏀寔
+    visitor: true # 鏂囩珷璁块棶閲忕粺璁?    recordIP: true # 鏄惁璁板綍璇勮鑰匢P
+    enableQQ: false # 鏄惁鍚敤鏄电О妗嗚嚜鍔ㄨ幏鍙朡Q鏄电О鍜孮Q澶村儚锛屽紑鍚悗鏄湪鏄电О妗嗚緭鍏Q鍙风爜杩涜鑾峰彇
+    meta: "['nick', 'mail', 'link']" # 璇勮鑰呯浉鍏冲睘鎬э紝鍙€夊€硷細['nick']锛孾'nick','mail']锛孾'nick', 'mail', 'link']
+    requiredFields: "['nick']" # 璁剧疆蹇呭～椤癸紝榛樿鍖垮悕
+    bilibiliEmoji: true # 鏄惁鍚敤Bilibili琛ㄦ儏
+  # disqus 璇勮
+  # docs: https://disqus.com/
+  disqus:
+    website: 
+    error: 濡傛灉浣犵湅涓嶅埌璇勮锛岄偅涔堝氨鐪熺殑鐪嬩笉鍒拌瘎璁?w(銈溞斻倻)w
+
+# dplayer 瑙嗛鎾斁
+# docs: http://dplayer.js.org/#/zh-Hans/
+dplayer:
+  enable: true
+  theme: "#b7daff"
+  autoplay: false
+  loop: false
+  mutex: true
+
+# aplayer 闊抽鎾斁
+# docs: https://aplayer.js.org/#/zh-Hans/
+aplayer:
+  enable: true
+  theme: "#b7daff"
+  autoplay: false
+  loop: false
+  mutex: true
+  lrcType: 3
+
+# mathjax LaTeX鍏紡鏀寔
+# docs: http://docs.mathjax.org/en/latest/
+mathjax:
+  enable: true
+  inlineMathMark: [['\\(', '\\)'],] #鍐呰仈鍏紡鏍囪, e.g. [['\\(', '\\)'],['$', '$']]
+
+# polyfill 鎻愪緵鏃х増鏈祻瑙堝櫒瀵规柊璇硶鐨勬敮鎸?# website: https://cdnjs.cloudflare.com/polyfill
+polyfill:
+  enable: false
+
+# jsdelivr闀滃儚鍩熷悕
+# e.g. cdn.example.com
+jsdelivr_mirror: 
+
+# 鍥藉唴澶囨淇℃伅
+beian: 
+
+# 璋锋瓕鍒嗘瀽
+google_analytics: 
+# gauges鍒嗘瀽
+gauges_analytics: 
+# 鐧惧害鍒嗘瀽
+baidu_analytics: 
+# 鑵捐鍒嗘瀽
+tencent_analytics: 
+# 绔欑偣ico
+favicon: /favicon.ico
+
+
+# Social Icon
+social_icon:
+  enable: true
+  icons:
+    ins     :
+    zhihu   :
+    weibo   : 
+    github  : https://github.com/miiiku/
+    twitter : https://twitter.com/guanquanhong
+

@@ -1,0 +1,60 @@
+/* 页脚访问统计样式 */
+.busuanzi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--text-color-3, #666);
+  flex-wrap: wrap;
+}
+
+.busuanzi .post-meta-item-icon {
+  margin-right: 4px;
+}
+
+.busuanzi .post-meta-divider {
+  margin: 0 8px;
+  color: var(--text-color-4, #999);
+}
+
+.busuanzi span {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .busuanzi {
+    color: var(--text-color-3-dark, #aaa);
+  }
+  
+  .busuanzi .post-meta-divider {
+    color: var(--text-color-4-dark, #777);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .busuanzi {
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+  
+  .busuanzi .post-meta-divider {
+    margin: 0 6px;
+  }
+}
+
+/* 统计数字高亮 */
+#busuanzi_value_site_uv,
+#busuanzi_value_site_pv {
+  font-weight: 600;
+  color: var(--primary-color, #42b883);
+}
+
+/* 加载状态样式 */
+.busuanzi span[title*="统计中"] {
+  color: var(--text-color-4, #999);
+  font-style: italic;
+}

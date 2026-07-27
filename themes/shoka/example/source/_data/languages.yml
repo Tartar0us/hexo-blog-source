@@ -1,0 +1,38 @@
+﻿# language
+zh-CN:
+  # items
+  menu:
+    links: 閾炬帴
+    travellings: 寮€寰€
+    webstack: 缃戝潃
+    friends: 鍙嬮仈
+
+zh-HK:
+  menu:
+    links: 閾炬帴
+    travellings: 闁嬪線
+    friends: 鍙嬮仈
+    webstack: 缍插潃
+
+zh-TW:
+  menu:
+    links: 閾炬帴
+    travellings: 闁嬪線
+    friends: 鍙嬮仈
+    webstack: 缍插潃
+
+en:
+  menu:
+    links: Links
+    travellings: Travellings
+    webstack: Web Stack
+    friends: Friends
+
+ja:
+  menu:
+    links: 銉兂銈?
+    travellings: 鏃呰
+    friends: 鍙嬮仈
+    webstack: 銈︺偋銉栥偣銈裤儍銈?
+
+
