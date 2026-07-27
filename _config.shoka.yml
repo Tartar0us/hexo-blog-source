@@ -54,6 +54,7 @@ open_graph:
 
 menu:
   home: / || home
+  about: /about/ || user
   posts:
     default: / || feather
     archives: /archives/ || list-alt
@@ -143,6 +144,10 @@ tagcloud:
   start: "#72cecf"       # 起始颜色
   end: "#ffbac3"         # 结束颜色
   amount: 200            # 标签数量
+
+widgets:
+  random_posts: false
+  recent_comments: false
 
 footer:
   # Specify the date when the site was setup. If not defined, current year will be used.

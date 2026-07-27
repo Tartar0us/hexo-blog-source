@@ -1,11 +1,11 @@
----
+﻿---
 title: SQL学习笔记
 date: 2025-08-12
-categories: 技术
+categories:
+  - 技术
 tags:
   - SQL
 ---
-
 # 8月12日
 ## 基础查询语法
 SELECT * FROM world

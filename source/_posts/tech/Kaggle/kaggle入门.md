@@ -1,11 +1,12 @@
----
+﻿---
 title: Kaggle
 date: 2025-08-01
-categories: 技术
+categories:
+  - 技术
 tags:
-  - 实习
+  - Kaggle
   - 数据分析
-  - kaggle
+  - 机器学习
 ---
 ### 入门
 - 本来打算把kaggle入门归类到我们的tech文件夹中，但是想到未来还要有很多的博客关于kaggle，就直接开了一个文件夹。

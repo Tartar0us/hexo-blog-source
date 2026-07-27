@@ -1,3 +1,13 @@
+﻿---
+title: AI智能体和chatBI构建
+date: 2025-08-30
+categories:
+  - 实习
+tags:
+  - 实习
+  - AI
+  - 行业观察
+---
 ## AI智能体
 ### 通用技能
 - 基本js语法处理数json数据

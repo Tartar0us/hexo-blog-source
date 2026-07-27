@@ -1,13 +1,11 @@
----
+﻿---
 title: Python Demo
 date: 2025-07-30 15:30:00
-tags: 
-  - Python
-  - 编程
-categories: 
+categories:
   - 技术
+tags:
+  - Python
 ---
-
 这是一个 Python 基础语法演示，包含复数运算、字符串格式化等内容。
 
 ```python

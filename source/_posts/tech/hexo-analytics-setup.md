@@ -1,10 +1,13 @@
----
+﻿---
 title: Hexo 博客访问量统计配置指南
 date: 2025-09-20
-categories: [技术, 博客]
-tags: [Hexo, 统计, LeanCloud, 不蒜子]
+categories:
+  - 博客建设
+tags:
+  - Hexo
+  - 博客建设
+  - 统计
 ---
-
 # Hexo 博客访问量统计配置指南
 
 本文介绍如何为 Hexo 博客配置访问量统计功能，包括 Valine 统计和不蒜子统计两种方案。

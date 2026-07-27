@@ -1,11 +1,12 @@
----
+﻿---
 title: markdown语法学习
 date: 2025-07-29 23:31:00
-keywords: markdown
+categories:
+  - 技术
 tags:
-  - 博客
-  - md
-categories: 技术
+  - Python
+  - 数据分析
+  - Markdown
 ---
 # md基本语法
 - 井号来设置标题，例如一个#加空格就是一级标题

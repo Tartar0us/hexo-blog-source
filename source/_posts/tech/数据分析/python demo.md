@@ -1,10 +1,11 @@
----
+﻿---
 title: python demo1
 date: 2025-07-30
-categories: 技术
-description: 
+categories:
+  - 技术
 tags:
   - Python
+  - 数据分析
 ---
 ```from calendar import day_name  
   

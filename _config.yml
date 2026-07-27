@@ -5,8 +5,8 @@
 # Site
 title: Tartar0us's Blog        # 网站标题，显示在浏览器标签和网站顶部
 subtitle: '高台藏鼠辈，乡野卧麒麟'  # 网站副标题
-description: '你所厌恶的今天，是昨日死去之人苦苦奢望的明天'  # 网站描述，用于SEO
-keywords: '1111111111111111111111'    # 网站关键词，用于SEO
+description: '记录成长、学习、科研、实习、阅读和生活复盘的个人博客'  # 网站描述，用于SEO
+keywords: 'Tartar0us,个人博客,成长复盘,日记,技术,科研,实习,读书'    # 网站关键词，用于SEO
 author: Tartar0us             # 作者名称，显示在文章和页面中
 language: zh-CN
 timezone: ''
@@ -69,6 +69,16 @@ index_generator:
 # Category & Tag
 default_category: uncategorized
 category_map:
+  日记: diary
+  技术: tech
+  读书: reading
+  科研: research
+  实习: internship
+  生活: life
+  经验分享: experience
+  博客建设: blog-meta
+  自媒体: media
+  留学: study-abroad
 tag_map:
 
 # Metadata elements

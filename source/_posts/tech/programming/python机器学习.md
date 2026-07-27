@@ -1,3 +1,13 @@
+﻿---
+title: python机器学习
+date: 2025-08-06
+categories:
+  - 技术
+tags:
+  - Python
+  - 数据分析
+  - 机器学习
+---
 ## **SKLEARN**
 - from sklearn.model_selection import train_test_split
 - `train_test_split` 是 **机器学习中划分训练集和测试集的核心工具**，作用是把原始数据集拆成两部分：

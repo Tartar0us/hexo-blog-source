@@ -11,6 +11,8 @@ const path = require('path');
 const randomServer = parseInt(Math.random()*4,10)+1
 
 const randomBG = function(count = 1, image_server = null, image_list = []) {
+  const fallback = '/images/preview.jpg';
+
   if (image_server) {
     if(count && count > 1) {
       var arr = new Array(count);
@@ -24,29 +26,11 @@ const randomBG = function(count = 1, image_server = null, image_list = []) {
     return image_server + '?' + Math.floor(Math.random() * 999999)
   }
 
-  var parseImage = function(img, size) {
-    if (img.startsWith('//') || img.startsWith('http')) {
-      return img
-    } else {
-      return 'https://tva'+randomServer+'.sinaimg.cn/'+size+'/'+img
-    }
-  }
-
   if(count && count > 1) {
-    var shuffled = image_list.slice(0), i = image_list.length, min = i - count, temp, index;
-    while (i-- > min) {
-      index = Math.floor((i + 1) * Math.random());
-      temp = shuffled[index];
-      shuffled[index] = shuffled[i];
-      shuffled[i] = temp;
-    }
-
-    return shuffled.slice(min).map(function(img) {
-      return parseImage(img, 'large')
-    });
+    return new Array(count).fill(fallback);
   }
 
-  return parseImage(image_list[Math.floor(Math.random() * image_list.length)], 'mw690')
+  return fallback;
 }
 
 hexo.extend.helper.register('_url', function(path, text, options = {}) {
