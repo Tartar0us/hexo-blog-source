@@ -10,14 +10,16 @@ function json(data, status) {
   });
 }
 
-function unauthorized() {
-  return json({ ok: false, error: 'unauthorized' }, 401);
+function unauthorized(error) {
+  return json({ ok: false, error: error || 'unauthorized' }, 401);
 }
 
 function requireAdmin(request, env) {
   const auth = request.headers.get('authorization') || '';
   const token = request.headers.get('x-admin-token') || auth.replace(/^Bearer\s+/i, '');
-  return env.ADMIN_TOKEN && token === env.ADMIN_TOKEN;
+  if (!env.ADMIN_TOKEN) return { ok: false, error: 'admin token is not configured' };
+  if (token !== env.ADMIN_TOKEN) return { ok: false, error: 'unauthorized' };
+  return { ok: true };
 }
 
 function parseUA(ua) {
@@ -123,7 +125,8 @@ export async function track(request, env) {
 }
 
 export async function listVisits(request, env) {
-  if (!requireAdmin(request, env)) return unauthorized();
+  const admin = requireAdmin(request, env);
+  if (!admin.ok) return unauthorized(admin.error);
   if (!env.VISITS) return json({ ok: false, error: 'VISITS KV is not configured' }, 500);
 
   const url = new URL(request.url);
@@ -151,7 +154,8 @@ function countBy(items, field, limit) {
 }
 
 export async function summary(request, env) {
-  if (!requireAdmin(request, env)) return unauthorized();
+  const admin = requireAdmin(request, env);
+  if (!admin.ok) return unauthorized(admin.error);
   if (!env.VISITS) return json({ ok: false, error: 'VISITS KV is not configured' }, 500);
 
   const listed = await env.VISITS.list({ prefix: 'visit:', limit: 1000 });
