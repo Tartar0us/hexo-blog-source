@@ -1,0 +1,11 @@
+name = "hexo-blog-source"
+main = "worker-site.js"
+compatibility_date = "2026-07-27"
+
+[[kv_namespaces]]
+binding = "VISITS"
+id = "ab9ff059cc484eae8aab5c60e664e020"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

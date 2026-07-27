@@ -11,12 +11,11 @@ npm run build
 
 ## Cloudflare Pages
 
-Cloudflare Pages 构建配置：
+Cloudflare Workers/Pages Git 部署配置：
 
 ```text
 Build command: npm run build
-Build output directory: public
-Root directory: /
+Deploy command: npx wrangler deploy
 ```
 
 统计接口通过 Cloudflare Pages Functions 提供：
