@@ -194,8 +194,85 @@ layout: "page"
   line-height: 1.8;
 }
 
+.diary-words-dashboard {
+  margin-top: 34px;
+  color: var(--ink);
+}
+
+.diary-word-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.word-cloud {
+  min-height: 260px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  padding: 22px;
+}
+
+.cloud-word {
+  color: hsl(var(--hue, 184), 72%, var(--light, 32%));
+  font-size: var(--size, 18px);
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.word-rank {
+  counter-reset: word-rank;
+}
+
+.word-rank-row {
+  counter-increment: word-rank;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 74px;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.word-rank-row::before {
+  content: counter(word-rank);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.word-rank-name {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.word-rank-bar {
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.word-rank-fill {
+  display: block;
+  height: 100%;
+  width: var(--width, 0%);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.word-rank-count,
+.word-query-result {
+  color: var(--accent-2);
+  font-weight: 800;
+}
+
 @media (max-width: 860px) {
   .analytics-config,
+  .diary-word-toolbar,
   .metrics-grid,
   .analytics-layout {
     grid-template-columns: 1fr;
@@ -211,6 +288,105 @@ layout: "page"
 <div class="analytics-layout"><div class="analytics-section"><h2 class="section-title">最近访问</h2><div class="table-wrap"><table class="visit-table"><thead><tr><th>时间</th><th>访客</th><th>页面</th><th>地区</th><th>设备</th><th>来源</th></tr></thead><tbody id="recent-visits"><tr><td colspan="6">输入管理员口令后加载数据。</td></tr></tbody></table></div></div><div class="analytics-section"><h2 class="section-title">热门页面</h2><div class="ranking" id="top-pages"></div><h2 class="section-title" style="margin-top: 22px;">来源</h2><div class="ranking" id="top-referrers"></div><h2 class="section-title" style="margin-top: 22px;">地区</h2><div class="ranking" id="top-countries"></div></div></div>
 <div class="setup-note">当前统计后端已连接 Cloudflare Worker。前端脚本会自动记录全站访问；本页只用管理员口令查询数据。</div>
 </div>
+
+<div class="analytics-dashboard diary-words-dashboard" id="diary-words-dashboard">
+<div class="analytics-hero"><h1 class="analytics-title">日记词频分析</h1><p class="analytics-subtitle">只统计 diary 目录中的日记，不统计人生计划、读书、科研、技术等其他文章。词云和排行榜会在每次部署时自动更新。</p></div>
+<div class="metrics-grid"><div class="metric-card"><div class="metric-label">统计日记数</div><div class="metric-value" id="diary-total-posts">-</div></div><div class="metric-card"><div class="metric-label">日记总字符</div><div class="metric-value" id="diary-total-chars">-</div></div><div class="metric-card"><div class="metric-label">入榜词语</div><div class="metric-value" id="diary-total-words">-</div></div><div class="metric-card"><div class="metric-label">最高频词</div><div class="metric-value" id="diary-top-word" style="font-size: 22px;">-</div></div></div>
+<div class="diary-word-toolbar"><input class="analytics-input" id="diary-word-query" type="search" autocomplete="off" placeholder="输入词语查看出现次数，比如：科研、健身、实习"><button class="analytics-button" id="diary-word-query-button">查词</button></div>
+<div class="analytics-status" id="diary-word-status"></div>
+<div class="analytics-layout"><div class="analytics-section"><h2 class="section-title">词云</h2><div class="word-cloud" id="diary-word-cloud">正在加载词云...</div></div><div class="analytics-section"><h2 class="section-title">词频排行榜</h2><div class="word-rank" id="diary-word-rank"></div></div></div>
+</div>
+
+<script>
+(function () {
+  var statusEl = document.getElementById('diary-word-status');
+  var queryInput = document.getElementById('diary-word-query');
+  var queryButton = document.getElementById('diary-word-query-button');
+  var words = [];
+
+  function setText(id, value) {
+    document.getElementById(id).textContent = value == null ? '-' : value;
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (char) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+    });
+  }
+
+  function setStatus(message) {
+    statusEl.innerHTML = message || '';
+  }
+
+  function renderCloud(items) {
+    var cloud = document.getElementById('diary-word-cloud');
+    var top = items[0] ? items[0].count : 1;
+    cloud.innerHTML = items.slice(0, 90).map(function (item, index) {
+      var ratio = item.count / top;
+      var size = Math.round(14 + ratio * 30);
+      var light = Math.round(46 - ratio * 18);
+      var hue = 184 + (index % 5) * 18;
+      return '<span class="cloud-word" title="' + escapeHtml(item.count) + ' 次" style="--size:' + size + 'px;--light:' + light + '%;--hue:' + hue + ';">' + escapeHtml(item.text) + '</span>';
+    }).join('');
+  }
+
+  function renderRank(items) {
+    var rank = document.getElementById('diary-word-rank');
+    var top = items[0] ? items[0].count : 1;
+    rank.innerHTML = items.slice(0, 60).map(function (item) {
+      var width = Math.max(8, Math.round(item.count / top * 100));
+      return '<div class="word-rank-row"><div><div class="word-rank-name">' + escapeHtml(item.text) + '</div><div class="word-rank-bar"><span class="word-rank-fill" style="--width:' + width + '%;"></span></div></div><div class="word-rank-count">' + item.count + '</div></div>';
+    }).join('');
+  }
+
+  function queryWord() {
+    var value = queryInput.value.trim();
+    if (!value) {
+      setStatus('输入一个词语，就能看它在日记里出现了多少次。');
+      return;
+    }
+    var exact = words.find(function (item) {
+      return item.text === value;
+    });
+    var fuzzy = words.filter(function (item) {
+      return item.text.indexOf(value) > -1 || value.indexOf(item.text) > -1;
+    }).slice(0, 8);
+
+    if (exact) {
+      setStatus('「' + escapeHtml(value) + '」在日记词频中出现 <span class="word-query-result">' + exact.count + '</span> 次。');
+      return;
+    }
+    if (fuzzy.length) {
+      setStatus('没有精确命中「' + escapeHtml(value) + '」，相近词：' + fuzzy.map(function (item) {
+        return '<span class="word-query-result">' + escapeHtml(item.text) + ' ' + item.count + '</span>';
+      }).join(' / '));
+      return;
+    }
+    setStatus('暂时没有找到「' + escapeHtml(value) + '」。它可能没有出现，或者没有进入当前词表。');
+  }
+
+  fetch('/diary-word-stats.json').then(function (response) {
+    if (!response.ok) throw new Error(response.status);
+    return response.json();
+  }).then(function (data) {
+    words = data.words || [];
+    setText('diary-total-posts', Number(data.totalDiaries || 0).toLocaleString());
+    setText('diary-total-chars', Number(data.totalChars || 0).toLocaleString());
+    setText('diary-total-words', Number(words.length || 0).toLocaleString());
+    setText('diary-top-word', words[0] ? words[0].text : '-');
+    renderCloud(words);
+    renderRank(words);
+    setStatus('已更新：' + new Date(data.generatedAt || Date.now()).toLocaleString());
+  }).catch(function (error) {
+    setStatus('日记词频数据加载失败：' + error.message);
+  });
+
+  queryButton.addEventListener('click', queryWord);
+  queryInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') queryWord();
+  });
+})();
+</script>
 
 <script>
 (function () {
