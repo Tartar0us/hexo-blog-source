@@ -441,6 +441,11 @@ const algoliaSearch = function(pjax) {
     });
   }
 
+  if(CONFIG.search.type === 'local') {
+    localSearch(pjax);
+    return;
+  }
+
   var search = instantsearch({
     indexName: CONFIG.search.indexName,
     searchClient  : algoliasearch(CONFIG.search.appID, CONFIG.search.apiKey),
@@ -541,6 +546,238 @@ const algoliaSearch = function(pjax) {
   const onPopupClose = function() {
     document.body.style.overflow = '';
     transition(siteSearch, 0); // "transition.shrinkOut"
+  };
+
+  siteSearch.addEventListener('click', function(event) {
+    if (event.target === siteSearch) {
+      onPopupClose();
+    }
+  });
+  $('.close-btn').addEventListener('click', onPopupClose);
+  window.addEventListener('pjax:success', onPopupClose);
+  window.addEventListener('keyup', function(event) {
+    if (event.key === 'Escape') {
+      onPopupClose();
+    }
+  });
+}
+
+const localSearch = function(pjax) {
+  var input = null;
+  var hitsBox = null;
+  var statsBox = null;
+  var paginationBox = null;
+  var searchData = null;
+  var resultCache = [];
+  var pageIndex = 0;
+  var perPage = CONFIG.search.hits.per_page || 10;
+
+  $('.search-input-container').innerHTML = '<input class="search-input" type="search" placeholder="' + LOCAL.search.placeholder + '" autocomplete="off">';
+  input = $('.search-input');
+  hitsBox = $('#search-hits');
+  statsBox = $('#search-stats');
+  paginationBox = $('#search-pagination');
+
+  const escapeHTML = function(text) {
+    return String(text || '').replace(/[&<>"']/g, function(char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char];
+    });
+  };
+
+  const searchUrl = function() {
+    return (CONFIG.root || '/') + CONFIG.search.path.replace(/^\//, '');
+  };
+
+  const normalize = function(text) {
+    return String(text || '').toLowerCase();
+  };
+
+  const getText = function(item) {
+    return [
+      item.title,
+      item.date,
+      (item.categories || []).join(' '),
+      (item.tags || []).join(' '),
+      item.content
+    ].join(' ');
+  };
+
+  const getSnippet = function(content, query) {
+    var text = String(content || '');
+    var lowerText = normalize(text);
+    var lowerQuery = normalize(query);
+    var index = lowerText.indexOf(lowerQuery);
+    if(index < 0) {
+      return text.slice(0, 90);
+    }
+    var start = Math.max(index - 35, 0);
+    return (start > 0 ? '...' : '') + text.slice(start, start + 110) + (start + 110 < text.length ? '...' : '');
+  };
+
+  const rankResult = function(item, terms) {
+    var title = normalize(item.title);
+    var tags = normalize((item.tags || []).join(' '));
+    var categories = normalize((item.categories || []).join(' '));
+    var content = normalize(item.content);
+    var score = 0;
+
+    terms.forEach(function(term) {
+      if(title.indexOf(term) > -1) score += 8;
+      if(tags.indexOf(term) > -1) score += 5;
+      if(categories.indexOf(term) > -1) score += 4;
+      if(content.indexOf(term) > -1) score += 1;
+    });
+
+    return score;
+  };
+
+  const renderPagination = function(totalPages) {
+    if(totalPages <= 1) {
+      paginationBox.innerHTML = '';
+      return;
+    }
+
+    paginationBox.innerHTML = '<ul class="pagination">' +
+      '<li class="pagination-item ' + (pageIndex === 0 ? 'disabled-item' : '') + '"><a class="page-number" data-page="prev"><i class="ic i-angle-left"></i></a></li>' +
+      '<li class="pagination-item current"><span class="page-number">' + (pageIndex + 1) + ' / ' + totalPages + '</span></li>' +
+      '<li class="pagination-item ' + (pageIndex >= totalPages - 1 ? 'disabled-item' : '') + '"><a class="page-number" data-page="next"><i class="ic i-angle-right"></i></a></li>' +
+      '</ul>';
+  };
+
+  const renderResults = function(query, elapsed) {
+    var total = resultCache.length;
+    var totalPages = Math.max(Math.ceil(total / perPage), 1);
+    var start = pageIndex * perPage;
+    var rows = resultCache.slice(start, start + perPage);
+
+    statsBox.innerHTML = LOCAL.search.stats
+      .replace(/\$\{hits}/, total)
+      .replace(/\$\{time}/, elapsed || 0) + '<hr>';
+
+    if(!query) {
+      hitsBox.innerHTML = '<div id="hits-empty">输入关键词后开始搜索。</div>';
+      paginationBox.innerHTML = '';
+      return;
+    }
+
+    if(!total) {
+      hitsBox.innerHTML = '<div id="hits-empty">' + LOCAL.search.empty.replace(/\$\{query}/, escapeHTML(query)) + '</div>';
+      paginationBox.innerHTML = '';
+      return;
+    }
+
+    hitsBox.innerHTML = '<ol>' + rows.map(function(item) {
+      var cats = item.categories && item.categories.length ? '<span>' + item.categories.map(escapeHTML).join('<i class="ic i-angle-right"></i>') + '</span>' : '';
+      var tags = item.tags && item.tags.length ? '<small>' + item.tags.map(function(tag) { return '#' + escapeHTML(tag); }).join(' ') + '</small>' : '';
+      var snippet = escapeHTML(getSnippet(item.content || item.excerpt, query));
+
+      return '<li class="item"><a href="' + CONFIG.root + item.path + '">' +
+        cats +
+        '<strong>' + escapeHTML(item.title) + '</strong>' +
+        '<p>' + snippet + '</p>' +
+        tags +
+        '</a></li>';
+    }).join('') + '</ol>';
+
+    renderPagination(totalPages);
+    pjax.refresh(hitsBox);
+  };
+
+  const performSearch = function() {
+    var query = input.value.trim();
+    var started = Date.now();
+    var terms = normalize(query).split(/\s+/).filter(Boolean);
+
+    pageIndex = 0;
+
+    if(!query) {
+      resultCache = [];
+      renderResults('', 0);
+      return;
+    }
+
+    resultCache = searchData.map(function(item) {
+      return {
+        item: item,
+        score: rankResult(item, terms)
+      };
+    }).filter(function(result) {
+      if(!result.score) return false;
+      var text = normalize(getText(result.item));
+      return terms.every(function(term) {
+        return text.indexOf(term) > -1;
+      });
+    }).sort(function(a, b) {
+      return b.score - a.score;
+    }).map(function(result) {
+      return result.item;
+    });
+
+    renderResults(query, Date.now() - started);
+  };
+
+  const ensureData = function(done) {
+    if(searchData) {
+      done();
+      return;
+    }
+
+    statsBox.innerHTML = '正在加载搜索索引...<hr>';
+    fetch(searchUrl()).then(function(response) {
+      if(!response.ok) throw new Error(response.status);
+      return response.json();
+    }).then(function(data) {
+      searchData = data;
+      done();
+    }).catch(function() {
+      statsBox.innerHTML = '搜索索引加载失败，请稍后刷新重试。<hr>';
+    });
+  };
+
+  input.addEventListener('input', function() {
+    ensureData(performSearch);
+  });
+
+  paginationBox.addEventListener('click', function(event) {
+    var target = event.target.closest('[data-page]');
+    if(!target) return;
+
+    var totalPages = Math.ceil(resultCache.length / perPage);
+    if(target.dataset.page === 'prev' && pageIndex > 0) {
+      pageIndex--;
+    }
+    if(target.dataset.page === 'next' && pageIndex < totalPages - 1) {
+      pageIndex++;
+    }
+
+    renderResults(input.value.trim(), 0);
+  });
+
+  renderResults('', 0);
+
+  $.each('.search', function(element) {
+    element.addEventListener('click', function() {
+      document.body.style.overflow = 'hidden';
+      transition(siteSearch, 'shrinkIn', function() {
+        input.focus();
+        ensureData(function() {
+          if(input.value.trim()) {
+            performSearch();
+          }
+        });
+      });
+    });
+  });
+
+  const onPopupClose = function() {
+    document.body.style.overflow = '';
+    transition(siteSearch, 0);
   };
 
   siteSearch.addEventListener('click', function(event) {

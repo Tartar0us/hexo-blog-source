@@ -41,12 +41,19 @@ hexo.extend.generator.register('script', function(locals){
     }
   };
 
-  if(config.algolia) {
+  if(config.algolia && config.algolia.appId && config.algolia.apiKey && !/^#|Your /.test(config.algolia.appId) && !/^#|Your /.test(config.algolia.apiKey)) {
     siteConfig.search = {
+      type     : 'algolia',
       appID    : config.algolia.appId,
       apiKey   : config.algolia.apiKey,
       indexName: config.algolia.indexName,
       hits     : theme.search.hits
+    }
+  } else {
+    siteConfig.search = {
+      type: 'local',
+      path: 'search.json',
+      hits: theme.search.hits
     }
   }
 
