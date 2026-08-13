@@ -114,7 +114,7 @@ theme: shoka
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: git@github.com:Tartar0us/Tartar0us.github.io.git
+  repo: ssh://git@ssh.github.com:443/Tartar0us/Tartar0us.github.io.git
   branch: main
   message: Site updated
 
