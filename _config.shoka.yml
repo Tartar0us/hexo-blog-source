@@ -60,6 +60,7 @@ menu:
     archives: /archives/ || list-alt
     categories: /categories/ || th
     tags: /tags/ || tags
+  calendar: /calendar/ || calendar
   stats: /stats/ || bar-chart
   friends: /friends/ || heart
 

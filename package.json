@@ -6,6 +6,8 @@
     "build": "hexo generate",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
+    "new-diary": "node tools/new-diary.js",
+    "diary-ai": "node tools/diary-ai.js",
     "server": "hexo server"
   },
   "hexo": {
