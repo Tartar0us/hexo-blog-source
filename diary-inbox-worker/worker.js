@@ -77,11 +77,26 @@ async function generateDraft(request, env) {
   const body = await request.json();
   const date = requireDate(body.date);
   const fragments = await readFragments(env, date);
-  const markdown = env.AI_API_KEY && env.AI_API_URL
-    ? await generateWithAi(env, date, fragments)
-    : fallbackMarkdown(date, fragments);
+  let aiError = null;
+  let markdown = fallbackMarkdown(date, fragments);
+  if (fragments.length && env.AI_API_KEY && env.AI_API_URL) {
+    try {
+      markdown = ensureHexoMarkdown(date, await generateWithAi(env, date, fragments));
+      aiError = null;
+    } catch (error) {
+      aiError = error.message || 'OpenAI 生成失败';
+    }
+  }
+  if (fragments.length && aiError && env.AI) {
+    try {
+      markdown = ensureHexoMarkdown(date, await generateWithWorkersAi(env, date, fragments));
+      aiError = null;
+    } catch (error) {
+      aiError = `${aiError}；Cloudflare AI 也失败：${error.message || '未知错误'}，已使用本地模板`;
+    }
+  }
   await env.DIARY_INBOX.put(draftKey(date), markdown);
-  return json({ date, markdown }, 200, request, env);
+  return json({ date, markdown, aiError }, 200, request, env);
 }
 
 async function publishDraft(request, env) {
@@ -106,22 +121,24 @@ async function readFragments(env, date) {
   return Array.isArray(value) ? value : [];
 }
 
-async function generateWithAi(env, date, fragments) {
-  const prompt = [
-    '你是一个私人日记整理助手。请把手机随手记录的碎片整理成一篇自然、真实、第一人称的中文日记。',
-    '要求：保留原始情绪和具体细节，不要编造不存在的经历；可以润色逻辑和错别字。',
-    '输出 Markdown，包含 Hexo front matter：title、date、categories: diary、tags。正文不要写解释。',
-    '',
-    `日期：${date}`,
-    '碎片：',
-    JSON.stringify(fragments, null, 2)
-  ].join('\n');
+async function generateWithWorkersAi(env, date, fragments) {
+  const prompt = buildDiaryPrompt(date, fragments);
+  const response = await env.AI.run(env.CF_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct', { prompt });
+  const markdown = response?.response || response?.result?.response || response?.text || response?.output_text;
+  if (!markdown) {
+    throw new Error('没有返回文本');
+  }
+  return String(markdown).trim();
+}
 
-  const response = await fetch(env.AI_API_URL.replace(/\/$/, '') + '/chat/completions', {
+async function generateWithAi(env, date, fragments) {
+  const prompt = buildDiaryPrompt(date, fragments);
+
+  const response = await fetch(String(env.AI_API_URL).trim().replace(/\/$/, '') + '/chat/completions', {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      authorization: `Bearer ${env.AI_API_KEY}`
+      authorization: `Bearer ${String(env.AI_API_KEY).trim()}`
     },
     body: JSON.stringify({
       model: env.AI_MODEL || 'gpt-4.1-mini',
@@ -138,6 +155,18 @@ async function generateWithAi(env, date, fragments) {
   }
   const data = await response.json();
   return data.choices?.[0]?.message?.content?.trim() || fallbackMarkdown(date, fragments);
+}
+
+function buildDiaryPrompt(date, fragments) {
+  return [
+    '你是一个私人日记整理助手。请把手机随手记录的碎片整理成一篇自然、真实、第一人称的中文日记。',
+    '要求：保留原始情绪和具体细节，不要编造不存在的经历；可以润色逻辑和错别字。',
+    '输出 Markdown，包含 Hexo front matter：title、date、categories: diary、tags。正文不要写解释。',
+    '',
+    `日期：${date}`,
+    '碎片：',
+    JSON.stringify(fragments, null, 2)
+  ].join('\n');
 }
 
 function fallbackMarkdown(date, fragments) {
@@ -164,6 +193,24 @@ function fallbackMarkdown(date, fragments) {
   }
   lines.push('', '# 晚间整理', '', '这里留给 AI 或自己继续整理。');
   return lines.join('\n');
+}
+
+function ensureHexoMarkdown(date, markdown) {
+  const content = String(markdown || '').trim();
+  if (content.startsWith('---')) {
+    return content;
+  }
+  return [
+    '---',
+    `title: ${diaryTitle(date)}`,
+    `date: ${date} 23:50:00`,
+    'categories: diary',
+    'tags:',
+    '  - 日记',
+    '---',
+    '',
+    content
+  ].join('\n');
 }
 
 async function writeGithubFile(env, date, markdown) {
@@ -207,7 +254,7 @@ async function writeGithubFile(env, date, markdown) {
 
 function isAuthorized(request, env) {
   const token = request.headers.get('x-diary-token') || request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
-  return Boolean(env.DIARY_TOKEN && token && token === env.DIARY_TOKEN);
+  return Boolean(env.DIARY_TOKEN && token && token.trim() === String(env.DIARY_TOKEN).trim());
 }
 
 function requireDate(value) {

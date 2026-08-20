@@ -8,7 +8,11 @@ GITHUB_OWNER = "Tartar0us"
 GITHUB_REPO = "hexo-blog-source"
 GITHUB_BRANCH = "main"
 AI_MODEL = "gpt-4.1-mini"
+CF_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast"
+
+[ai]
+binding = "AI"
 
 [[kv_namespaces]]
 binding = "DIARY_INBOX"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "acde4ff3e6c04bbeb0c846da6bda8f84"

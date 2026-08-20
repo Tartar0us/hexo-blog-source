@@ -246,7 +246,7 @@ comments: false
         body: JSON.stringify({ date: els.date.value })
       });
       els.draft.value = data.markdown || '';
-      setStatus('草稿已生成', 'ok');
+      setStatus(data.aiError || '草稿已生成', data.aiError ? 'warn' : 'ok');
     } catch (error) {
       setStatus(error.message, 'warn');
     }

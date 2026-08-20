@@ -2,6 +2,8 @@
 
 这个 Worker 给 `/diary-inbox/` 手机页面提供后端：保存当天碎片、调用 AI 生成 Markdown 草稿，并在配置 GitHub Token 后同步到 `Tartar0us/hexo-blog-source`。
 
+AI 生成会先尝试 OpenAI 兼容接口；如果失败，会尝试 Cloudflare Workers AI；如果仍失败，会自动返回本地 Markdown 模板。
+
 ## 配置
 
 1. 创建 KV：
