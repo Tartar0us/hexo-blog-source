@@ -20,10 +20,6 @@ comments: false
       <span>Worker 地址</span>
       <input id="diaryInboxEndpoint" type="url" inputmode="url" placeholder="https://your-worker.workers.dev">
     </label>
-    <label>
-      <span>口令</span>
-      <input id="diaryInboxToken" type="password" autocomplete="current-password" placeholder="只保存在这台设备">
-    </label>
     <button id="diaryInboxSaveSettings" class="diary-inbox-primary" type="button">保存设置</button>
   </section>
 
@@ -91,9 +87,9 @@ comments: false
 
 <script>
 (function () {
+  const DEFAULT_ENDPOINT = 'https://tartarous-diary-inbox.tartarous-blog-3010383177.workers.dev';
   const storage = {
-    endpoint: 'tartarous_diary_inbox_endpoint',
-    token: 'tartarous_diary_inbox_token'
+    endpoint: 'tartarous_diary_inbox_endpoint'
   };
   const $ = (id) => document.getElementById(id);
   const state = { fragments: [] };
@@ -102,7 +98,6 @@ comments: false
     settings: $('diaryInboxSettings'),
     settingsToggle: $('diaryInboxSettingsToggle'),
     endpoint: $('diaryInboxEndpoint'),
-    token: $('diaryInboxToken'),
     saveSettings: $('diaryInboxSaveSettings'),
     form: $('diaryInboxForm'),
     date: $('diaryInboxDate'),
@@ -130,29 +125,26 @@ comments: false
 
   function settings() {
     return {
-      endpoint: localStorage.getItem(storage.endpoint) || '',
-      token: localStorage.getItem(storage.token) || ''
+      endpoint: localStorage.getItem(storage.endpoint) || DEFAULT_ENDPOINT
     };
   }
 
   function applySettingsToInputs() {
     const saved = settings();
     els.endpoint.value = saved.endpoint;
-    els.token.value = saved.token;
-    setStatus(saved.endpoint && saved.token ? '已连接本机设置' : '先填写 Worker 地址和口令', saved.endpoint && saved.token ? 'ok' : 'warn');
+    setStatus('已连接日记收件箱', 'ok');
   }
 
   async function api(path, options) {
     const saved = settings();
-    if (!saved.endpoint || !saved.token) {
+    if (!saved.endpoint) {
       els.settings.hidden = false;
-      throw new Error('缺少 Worker 地址或口令');
+      throw new Error('缺少 Worker 地址');
     }
     const response = await fetch(saved.endpoint.replace(/\/$/, '') + path, {
       ...options,
       headers: {
         'content-type': 'application/json',
-        'x-diary-token': saved.token,
         ...(options && options.headers ? options.headers : {})
       }
     });
@@ -204,7 +196,6 @@ comments: false
 
   els.saveSettings.addEventListener('click', () => {
     localStorage.setItem(storage.endpoint, els.endpoint.value.trim());
-    localStorage.setItem(storage.token, els.token.value.trim());
     applySettingsToInputs();
   });
 

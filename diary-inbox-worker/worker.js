@@ -9,7 +9,7 @@ export default {
     }
 
     try {
-      if (!isAuthorized(request, env)) {
+      if (env.REQUIRE_TOKEN === 'true' && !isAuthorized(request, env)) {
         return json({ error: '口令不正确' }, 401, request, env);
       }
 
