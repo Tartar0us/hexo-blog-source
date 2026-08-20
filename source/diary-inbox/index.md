@@ -190,6 +190,16 @@ comments: false
     setStatus(`已读取 ${state.fragments.length} 条碎片`, 'ok');
   }
 
+  async function generateDraft() {
+    setStatus('正在整理成草稿...', '');
+    const data = await api('/api/generate', {
+      method: 'POST',
+      body: JSON.stringify({ date: els.date.value })
+    });
+    els.draft.value = data.markdown || '';
+    setStatus(data.aiError || '草稿已生成', data.aiError ? 'warn' : 'ok');
+  }
+
   els.settingsToggle.addEventListener('click', () => {
     els.settings.hidden = !els.settings.hidden;
   });
@@ -220,6 +230,8 @@ comments: false
       });
       els.text.value = '';
       await loadFragments();
+      setStatus('已保存，正在生成草稿...', '');
+      await generateDraft();
     } catch (error) {
       setStatus(error.message, 'warn');
     }
@@ -231,13 +243,7 @@ comments: false
 
   els.generate.addEventListener('click', async () => {
     try {
-      setStatus('正在整理成草稿...', '');
-      const data = await api('/api/generate', {
-        method: 'POST',
-        body: JSON.stringify({ date: els.date.value })
-      });
-      els.draft.value = data.markdown || '';
-      setStatus(data.aiError || '草稿已生成', data.aiError ? 'warn' : 'ok');
+      await generateDraft();
     } catch (error) {
       setStatus(error.message, 'warn');
     }
