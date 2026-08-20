@@ -11,5 +11,6 @@ yarn-debug.log*
 yarn-error.log*
 .env
 .env.*
+.dev.vars
 .shoka-git-backup/
 *.zip

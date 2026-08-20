@@ -1,0 +1,9 @@
+{
+  "name": "日记收件箱",
+  "short_name": "日记",
+  "start_url": "/diary-inbox/",
+  "scope": "/diary-inbox/",
+  "display": "standalone",
+  "background_color": "#fffdf9",
+  "theme_color": "#e97958"
+}

@@ -1,0 +1,14 @@
+name = "tartarous-diary-inbox"
+main = "worker.js"
+compatibility_date = "2025-08-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://tartar0us.github.io"
+GITHUB_OWNER = "Tartar0us"
+GITHUB_REPO = "hexo-blog-source"
+GITHUB_BRANCH = "main"
+AI_MODEL = "gpt-4.1-mini"
+
+[[kv_namespaces]]
+binding = "DIARY_INBOX"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
