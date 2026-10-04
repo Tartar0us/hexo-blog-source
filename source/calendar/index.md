@@ -49,6 +49,24 @@ layout: "page"
   font-size: 15px;
 }
 
+#diary-calendar-app .calendar-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+#diary-calendar-app #calendar-refresh {
+  border: 1px solid var(--cal-line);
+  border-radius: 6px;
+  background: var(--cal-soft);
+  color: var(--cal-ink);
+  font: inherit;
+  font-size: 13px;
+  min-height: 36px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+#diary-calendar-app #calendar-refresh:disabled { opacity: .6; cursor: wait; }
 #diary-calendar-app .calendar-monthbar {
   display: grid !important;
   grid-template-columns: 40px minmax(150px, auto) 40px;
@@ -307,7 +325,10 @@ layout: "page"
     <div class="calendar-top">
       <div>
         <h2 class="calendar-title">日记日历</h2>
-        <p class="calendar-range" id="calendar-summary">正在加载日记...</p>
+        <div class="calendar-status">
+          <p class="calendar-range" id="calendar-summary" aria-live="polite">正在加载日记...</p>
+          <button type="button" id="calendar-refresh">刷新日历</button>
+        </div>
       </div>
       <div class="calendar-monthbar">
         <button class="calendar-nav" type="button" id="calendar-prev" aria-label="上个月">‹</button>
@@ -337,6 +358,10 @@ layout: "page"
   var weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   var monthCursor = new Date();
   var calendarData = null;
+  var selectedDate = null;
+  var loading = false;
+  var refreshButton = document.getElementById('calendar-refresh');
+  var calendarApp = document.getElementById('diary-calendar-app');
 
   function pad(value) {
     return String(value).padStart(2, '0');
@@ -421,6 +446,7 @@ layout: "page"
       var classes = ['calendar-day'];
       if (posts.length) classes.push('has-diary');
       if (key === keyOf(new Date())) classes.push('is-today');
+      if (key === selectedDate) classes.push('is-selected');
       cells.push('<button type="button" class="' + classes.join(' ') + '" data-date="' + key + '"><span class="calendar-day-number">' + day + '</span><span class="calendar-day-meta">' + (posts.length ? '<span class="calendar-diary-count">' + posts.length + '篇</span>' : '') + (words ? '<small>' + number(words) + ' words</small>' : '') + '</span></button>');
     }
 
@@ -450,6 +476,7 @@ layout: "page"
     var button = event.target.closest('[data-date]');
     if (!button) return;
     var date = button.getAttribute('data-date');
+    selectedDate = date;
     Array.prototype.forEach.call(document.querySelectorAll('#calendar-days .calendar-day'), function (day) {
       day.classList.remove('is-selected');
     });
@@ -457,21 +484,46 @@ layout: "page"
     renderList(date, calendarData.days[date] || []);
   });
 
+  function loadCalendar() {
+    if (loading || !calendarApp.isConnected) return;
+    loading = true;
+    refreshButton.disabled = true;
+    refreshButton.textContent = '正在刷新…';
+    // The changing URL bypasses stale CDN entries as well as the browser cache.
+    fetch('/diary-calendar.json?v=' + Date.now(), { cache: 'no-store' }).then(function (response) {
+      if (!response.ok) throw new Error(response.status);
+      return response.json();
+    }).then(function (data) {
+      if (!calendarApp.isConnected) return;
+      if (!data.days || typeof data.days !== 'object') throw new Error('数据格式不正确');
+      if (!calendarData) {
+        var last = data.lastDate ? new Date(data.lastDate + 'T00:00:00') : new Date();
+        monthCursor = new Date(last.getFullYear(), last.getMonth(), 1);
+      }
+      calendarData = data;
+      setText('calendar-summary', data.firstDate + ' 到 ' + data.lastDate + ' · 已刷新');
+      setText('calendar-total-posts', number(data.totalPosts));
+      setText('calendar-total-words', number(data.totalWords));
+      renderMonth();
+      if (selectedDate) renderList(selectedDate, calendarData.days[selectedDate] || []);
+      else showRecent();
+    }).catch(function (error) {
+      if (calendarApp.isConnected) setText('calendar-summary', '刷新失败，请重试：' + error.message);
+    }).then(function () {
+      loading = false;
+      refreshButton.disabled = false;
+      refreshButton.textContent = '刷新日历';
+    });
+  }
+
+  refreshButton.addEventListener('click', loadCalendar);
+  // Replace the listener when PJAX recreates the page, instead of accumulating it.
+  if (window.diaryCalendarVisible) document.removeEventListener('visibilitychange', window.diaryCalendarVisible);
+  window.diaryCalendarVisible = function () {
+    if (document.visibilityState === 'visible') loadCalendar();
+  };
+  document.addEventListener('visibilitychange', window.diaryCalendarVisible);
   renderWeekdays();
-  fetch('/diary-calendar.json').then(function (response) {
-    if (!response.ok) throw new Error(response.status);
-    return response.json();
-  }).then(function (data) {
-    calendarData = data;
-    var last = data.lastDate ? new Date(data.lastDate + 'T00:00:00') : new Date();
-    monthCursor = new Date(last.getFullYear(), last.getMonth(), 1);
-    setText('calendar-summary', data.firstDate + ' 到 ' + data.lastDate);
-    setText('calendar-total-posts', number(data.totalPosts));
-    setText('calendar-total-words', number(data.totalWords));
-    renderMonth();
-    showRecent();
-  }).catch(function (error) {
-    setText('calendar-summary', '日历数据加载失败：' + error.message);
-  });
+  loadCalendar();
 })();
 </script>
